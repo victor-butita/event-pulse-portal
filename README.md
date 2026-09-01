@@ -24,7 +24,7 @@ npm run dev
 | `npm run build` | Typecheck + production bundle in `dist/` |
 | `npm run preview` | Serve `dist/` on 4173 |
 
-CI (GitHub Actions) runs `npm ci`, `typecheck`, and `build` on `main` and pull requests.
+CI (GitHub Actions) runs `npm ci`, `typecheck`, and `build` on `dev` and pull requests.
 
 ## Deploy on Vercel
 
