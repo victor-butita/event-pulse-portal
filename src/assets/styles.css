@@ -248,3 +248,13 @@ select {
 .page-content {
   min-height: 55vh;
 }
+
+.auth-card {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.auth-link {
+  margin-top: 1.25rem;
+  color: var(--muted);
+}

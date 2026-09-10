@@ -1,49 +1,102 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { ApiError } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
 const router = useRouter()
+
 const email = ref('')
 const password = ref('')
-const pending = ref(false)
-const error = ref('')
 
-async function onSubmit() {
-  pending.value = true
-  error.value = ''
+const loading = ref(false)
+const errorMessage = ref('')
+const successMessage = ref('')
+
+async function handleLogin() {
+  errorMessage.value = ''
+  successMessage.value = ''
+  loading.value = true
+
   try {
-    await auth.login(email.value, password.value)
+    const response = await auth.login(
+      email.value,
+      password.value,
+    )
+
+    successMessage.value = response.message
+
     await router.push('/events')
-  } catch (err) {
-    error.value = err instanceof ApiError ? err.message : 'Sign in failed'
+  } catch (error) {
+    if (error instanceof ApiError) {
+      errorMessage.value = error.message
+    } else if (error instanceof Error) {
+      errorMessage.value = error.message
+    } else {
+      errorMessage.value = 'Login failed. Please try again.'
+    }
   } finally {
-    pending.value = false
+    loading.value = false
   }
 }
 </script>
 
 <template>
-  <section class="card" style="max-width: 28rem">
+  <section class="card auth-card">
     <h1>Sign in</h1>
-    <p class="lede">Use the account you registered against EventPulse API.</p>
-    <form @submit.prevent="onSubmit">
+
+    <p class="lede">
+      Sign in to your EventPulse account.
+    </p>
+
+    <form @submit.prevent="handleLogin">
       <label>
         Email
-        <input v-model="email" type="email" required autocomplete="username" />
+        <input
+          v-model="email"
+          type="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+          required
+        />
       </label>
+
       <label>
         Password
-        <input v-model="password" type="password" required autocomplete="current-password" />
+        <input
+          v-model="password"
+          type="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          required
+        />
       </label>
+
       <div class="actions">
-        <button class="btn" type="submit" :disabled="pending">
-          {{ pending ? 'Signing in…' : 'Sign in' }}
+        <button
+          class="btn"
+          type="submit"
+          :disabled="loading"
+        >
+          {{ loading ? 'Signing in...' : 'Sign in' }}
         </button>
       </div>
-      <p v-if="error" class="msg error">{{ error }}</p>
     </form>
+
+    <p v-if="errorMessage" class="msg error">
+      {{ errorMessage }}
+    </p>
+
+    <p v-if="successMessage" class="msg">
+      {{ successMessage }}
+    </p>
+
+    <p class="auth-link">
+      Don't have an account?
+      <RouterLink to="/register">
+        Create an account
+      </RouterLink>
+    </p>
   </section>
 </template>

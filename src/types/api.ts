@@ -10,6 +10,7 @@ export interface ApiErrorBody {
   error?: string
   message?: string
   errors?: Record<string, string>
+  timestamp?: string
 }
 
 export interface EventItem {

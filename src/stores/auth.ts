@@ -60,7 +60,6 @@ export const useAuthStore = defineStore('auth', () => {
   function logout() {
     token.value = null
     lastMessage.value = ''
-
     setStoredToken(null)
   }
 
