@@ -24,7 +24,25 @@ npm run dev
 | `npm run build` | Typecheck + production bundle in `dist/` |
 | `npm run preview` | Serve `dist/` on 4173 |
 
-CI (GitHub Actions) runs `npm ci`, `typecheck`, and `build` on `dev` and pull requests.
+## CircleCI + SonarQube Cloud
+
+Add these **CircleCI project environment variables** (Project Settings → Environment Variables):
+
+| Variable | Purpose |
+|----------|---------|
+| `SONAR_TOKEN` | SonarQube Cloud token |
+| `SONAR_PROJECT_KEY` | e.g. from Sonar project settings |
+| `SONAR_ORGANIZATION` | your Sonar org key |
+
+Pipeline job: `build-test-scan` (`npm ci`, `typecheck`, `build`, then SonarQube Cloud scan). Attach the `eventpulse-mail` context (same as eventpulse-api). Set `SONAR_PROJECT_KEY` on this project so the portal does not reuse the API's Sonar project.
+
+### Branch protection (Victor)
+
+On `main`, require:
+
+1. Pull request before merge + 1 approval
+2. Status check: CircleCI `build-test-scan`
+3. Conversation resolution
 
 ## Deploy on Vercel
 
