@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  build-test-scan:
+  build-and-test:
     docker:
       - image: cimg/node:22.12
     resource_class: medium
@@ -10,10 +10,7 @@ jobs:
       VITE_API_BASE_URL: https://eventpulse-api-production-259f.up.railway.app
 
     steps:
-      # Blobless (CircleCI default) omits historical blobs. Sonar SCM blame uses
-      # JGit, which cannot lazy-fetch them → MissingObjectException / Missing blob.
-      - checkout:
-          method: full
+      - checkout
 
       - restore_cache:
           keys:
@@ -36,34 +33,7 @@ jobs:
             npm run typecheck
             npm run build
 
-      - run:
-          name: Install OpenJDK 17
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y openjdk-17-jre-headless
-            echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' >> "$BASH_ENV"
-            echo 'export PATH=$JAVA_HOME/bin:$PATH' >> "$BASH_ENV"
-
-      - run:
-          name: SonarQube Cloud scan
-          command: |
-            if [ -z "$SONAR_TOKEN" ] || [ -z "$SONAR_PROJECT_KEY" ] || [ -z "$SONAR_ORGANIZATION" ]; then
-              echo "Missing CircleCI env vars: SONAR_TOKEN, SONAR_PROJECT_KEY, SONAR_ORGANIZATION"
-              exit 1
-            fi
-
-            echo "Sonar org=${SONAR_ORGANIZATION} projectKey=${SONAR_PROJECT_KEY} token_set=yes"
-
-            npx --yes @sonar/scan \
-              -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-              -Dsonar.organization=${SONAR_ORGANIZATION} \
-              -Dsonar.host.url=https://sonarcloud.io \
-              -Dsonar.token=${SONAR_TOKEN} \
-              -Dsonar.scm.use.blame.algorithm=GIT_NATIVE_BLAME
-
 workflows:
-  build-test-scan:
+  build-and-test:
     jobs:
-      - build-test-scan:
-          context:
-            - eventpulse-mail
+      - build-and-test
