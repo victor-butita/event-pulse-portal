@@ -24,7 +24,17 @@ npm run dev
 | `npm run build` | Typecheck + production bundle in `dist/` |
 | `npm run preview` | Serve `dist/` on 4173 |
 
-CI (GitHub Actions) runs `npm ci`, `typecheck`, and `build` on `dev` and pull requests.
+## CircleCI
+
+Pipeline job: `build-and-test` (`npm ci`, `typecheck`, `build`).
+
+### Branch protection (Victor)
+
+On `main`, require:
+
+1. Pull request before merge + 1 approval
+2. Status check: CircleCI `build-and-test`
+3. Conversation resolution
 
 ## Deploy on Vercel
 

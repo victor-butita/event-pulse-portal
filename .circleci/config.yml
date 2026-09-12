@@ -1,0 +1,39 @@
+version: 2.1
+
+jobs:
+  build-and-test:
+    docker:
+      - image: cimg/node:22.12
+    resource_class: medium
+    environment:
+      CI: "true"
+      VITE_API_BASE_URL: https://eventpulse-api-production-259f.up.railway.app
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - npm-deps-{{ checksum "package-lock.json" }}
+            - npm-deps-
+
+      - run:
+          name: Install dependencies
+          command: npm ci
+
+      - save_cache:
+          paths:
+            - ~/.npm
+          key: npm-deps-{{ checksum "package-lock.json" }}
+
+      - run:
+          name: Typecheck and build
+          command: |
+            node -v
+            npm run typecheck
+            npm run build
+
+workflows:
+  build-and-test:
+    jobs:
+      - build-and-test
